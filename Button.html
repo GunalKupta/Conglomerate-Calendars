@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+       .vertical-center {
+         margin: 0;
+         position: absolute;
+         top: 30%;
+         left: 50%;
+         -ms-transform: translate(-50%, -40%);
+         transform: translate(-50%, -40%);
+       }
+       .center-center {
+         width: 70%;
+         position: absolute;
+         text-align: center;
+         top: 50%;
+         left: 50%;
+         -ms-transform: translate(-50%, -50%);
+         transform: translate(-50%, -50%);
+       }
+       .center-text {
+         width: 70%;
+         position: absolute;
+         text-align: center;
+         top: 60%;
+         left: 50%;
+         -ms-transform: translate(-50%, -60%);
+         transform: translate(-50%, -60%);
+       }
+       .contain {
+         margin: 0 auto;
+       }
+       .btn {
+         color: white;
+         background-color: #001EE3;
+         padding: 50px;
+         font-size: 70px;
+         margin: 0 auto;
+       }
+     </style>
+  </head>
+  <body>
+    <section class="vertical-center">
+      <button id="startButton" class="btn" onclick="this.disabled=true; run();">
+        <b>Update Calendars</b>
+      </button>
+    </section>
+    <br>
+
+    <div class="center-center">
+      <label id="proglabel" for="prog"></label>
+      <progress id="prog"> 0% </progress>
+    </div>
+
+    <div class="center-text">
+      <p id="status" style="font-size:20px">Push the button to update Kunal's conglomerate calendar!</p>
+      <p id="lastUpdated" style="font-size:15px"></p>
+    </div>
+  
+  <script>
+
+    window.addEventListener('load', function() {
+      google.script.run.withSuccessHandler(function(a) {
+        if (a == "true") {
+          document.getElementById("startButton").disabled = true;
+          document.getElementById("status").innerHTML = "Script is already running! Please wait...";
+          google.script.run.withSuccessHandler(onSuccess).waitForInactive();
+        } else {
+          document.getElementById("status").innerHTML = "Push the button to update Kunal's conglomerate calendar!";
+          updateTime();
+        }
+
+      }).isActive()
+    });
+
+    function updateTime() {
+      google.script.run.withSuccessHandler(function(time) {
+        document.getElementById("lastUpdated").innerHTML = "Last updated: " + time.toFixed(0) + " minutes ago.";
+      }).getTimeSinceLastExec();
+      console.log("Updated time");
+    }
+
+    function onSuccess(count) {
+      console.log("Success!")
+      document.getElementById("status").innerHTML = "<b>Success!</b><br>Updated " + count + " calendar events.";
+      document.getElementById("status").style.color = "green";
+      document.getElementById("startButton").disabled = false;
+      google.script.run.setActive("false");
+      updateTime();
+    }
+
+    function onFailure(err) {
+      document.getElementById("status").innerHTML = "<b>Failure!<b><br>"+err.message;
+      document.getElementById("status").style.color = "red";
+      document.getElementById("startButton").disabled = false;
+      google.script.run.setActive("false");
+    }
+
+    function run() {
+      document.getElementById("status").innerHTML = "Running...";
+      document.getElementById("status").style.color = "black";
+      google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).regularUpdate();
+    }
+
+    function updateProgress(num, message) {
+      document.getElementById("prog").value = num;
+      document.getElementById("proglabel").innerHTML = message;
+    }
+
+
+  </script>
+  
+  </body>
+
+</html>
